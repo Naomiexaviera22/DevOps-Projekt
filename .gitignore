@@ -1,0 +1,29 @@
+# Maven Build-Ausgabe
+target/
+
+# Kompilierte Java-Klassen (falls außerhalb von target/ entstehen)
+*.class
+
+# Log-Dateien
+*.log
+
+# VS Code – persönliche Editor-Einstellungen
+.vscode/
+
+# IntelliJ IDEA (falls Teammitglieder das nutzen)
+.idea/
+*.iml
+*.iws
+
+# Eclipse (falls Teammitglieder das nutzen)
+.classpath
+.project
+.settings/
+
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Lokale Umgebungsvariablen / Geheimnisse (falls später genutzt)
+.env
