@@ -1,1 +1,49 @@
+name: CI/CD Pipeline
 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Java 21 einrichten
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build mit Maven
+        run: ./mvnw clean package
+
+      - name: Tests ausführen
+        run: ./mvnw test
+
+      - name: Docker-Image bauen
+        run: docker build -t notes-app:latest .
+
+      - name: App über Docker Compose starten
+        run: docker compose up -d --build
+
+      - name: Warten bis App bereit ist
+        run: |
+          for i in {1..10}; do
+            if curl --fail http://localhost:8080/notes; then
+              echo "App läuft!"
+              exit 0
+            fi
+            echo "Warte auf App..."
+            sleep 3
+          done
+          echo "App ist nicht rechtzeitig gestartet"
+          exit 1
+
+      - name: Container-Logs anzeigen (bei Fehler hilfreich)
+        if: failure()
+        run: docker compose logs
