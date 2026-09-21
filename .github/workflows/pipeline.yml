@@ -24,8 +24,15 @@ jobs:
       - name: Build mit Maven
         run: ./mvnw clean package
 
-      - name: Tests ausführen
-        run: ./mvnw test
+      - name: Tests ausführen & Coverage prüfen
+        run: ./mvnw verify
+
+      - name: Coverage-Report hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: target/site/jacoco
 
       - name: Docker-Image bauen
         run: docker build -t notes-app:latest .
