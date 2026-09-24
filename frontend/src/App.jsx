@@ -1,45 +1,95 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: 'Willkommen',
-      content: 'Das ist unsere erste Notiz.'
-    },
-    {
-      id: 2,
-      title: 'DevOps',
-      content: 'Frontend mit React und Vite erstellen.'
-    }
-  ]);
+  const [notes, setNotes] = useState([]);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  useEffect(() => {
+  fetch('http://localhost:8080/notes')
+    .then((response) => response.json())
+    .then((data) => setNotes(data))
+    .catch((error) => console.error('Fehler beim Laden der Notizen:', error));
+}, []);
 
   const addNote = (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!title.trim() || !content.trim()) {
-      return;
-    }
+  if (!title.trim() || !content.trim()) {
+    return;
+  }
 
-    const newNote = {
-      id: Date.now(),
+  fetch('http://localhost:8080/notes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
       title: title,
       content: content
-    };
+    })
+  })
+    .then((response) => response.json())
+    .then((newNote) => {
+      setNotes([...notes, newNote]);
+      setTitle('');
+      setContent('');
+    })
+    .catch((error) => {
+      console.error('Fehler beim Erstellen der Notiz:', error);
+    });
+};
+const editNote = (note) => {
+  setEditingId(note.id);
+  setTitle(note.title);
+  setContent(note.content);
+};
+  const updateNote = (event) => {
+  event.preventDefault();
 
-    setNotes([...notes, newNote]);
+  if (!title.trim() || !content.trim() || editingId === null) {
+    return;
+  }
 
-    setTitle('');
-    setContent('');
-  };
+  fetch(`http://localhost:8080/notes/${editingId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      title: title,
+      content: content
+    })
+  })
+    .then((response) => response.json())
+    .then((updatedNote) => {
+      setNotes(
+        notes.map((note) =>
+          note.id === updatedNote.id ? updatedNote : note
+        )
+      );
 
+      setTitle('');
+      setContent('');
+      setEditingId(null);
+    })
+    .catch((error) => {
+      console.error('Fehler beim Aktualisieren der Notiz:', error);
+    });
+};
   const deleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
-  };
+  fetch(`http://localhost:8080/notes/${id}`, {
+    method: 'DELETE'
+  })
+    .then(() => {
+      setNotes(notes.filter((note) => note.id !== id));
+    })
+    .catch((error) => {
+      console.error('Fehler beim Löschen der Notiz:', error);
+    });
+};
 
   return (
     <div className="app">
@@ -54,7 +104,7 @@ function App() {
         <section className="new-note">
           <h2>Neue Notiz</h2>
 
-          <form onSubmit={addNote}>
+          <form onSubmit={editingId !== null ? updateNote : addNote}>
 
             <input
               type="text"
@@ -70,8 +120,8 @@ function App() {
               rows="5"
             />
 
-            <button type="submit">
-              + Notiz erstellen
+            <button type="submit" onClick={editingId !== null ? updateNote : addNote}>
+              {editingId !== null ? 'Notiz speichern' : '+ Notiz erstellen'}
             </button>
 
           </form>
@@ -91,7 +141,10 @@ function App() {
 
                 <div className="note-actions">
 
-                  <button className="edit-button">
+                  <button
+                    className="edit-button"
+                    onClick={() => editNote(note)}
+                  >
                     Bearbeiten
                   </button>
 

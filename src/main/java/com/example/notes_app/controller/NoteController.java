@@ -1,4 +1,4 @@
-package com.example.notes_app.controller;
+ package com.example.notes_app.controller;
 
 import com.example.notes_app.model.Note;
 import com.example.notes_app.service.NoteNotFoundException;
@@ -8,8 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "http://localhost:5174"
+})
 @RequestMapping("/notes")
 public class NoteController {
 
