@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -58,14 +58,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>org.jacoco</groupId>
+                        <configuration>
+                                <mainClass>com.example.notes_app.NotesAppApplication</mainClass>
+                        </configuration>
+                </plugin>
+                <plugin>
+                        <groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
 				<executions>
-					<!-- Instrumentierung fürs Coverage-Tracking beim Testlauf -->
+					<!-- Instrumentierung fÃ¼rs Coverage-Tracking beim Testlauf -->
 					<execution>
 						<id>prepare-agent</id>
 						<goals>
@@ -80,7 +82,7 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
-					<!-- Build schlägt fehl, wenn die Line-Coverage unter 70% liegt -->
+					<!-- Build schlÃ¤gt fehl, wenn die Line-Coverage unter 70% liegt -->
 					<execution>
 						<id>check</id>
 						<phase>verify</phase>
@@ -108,3 +110,5 @@
 	</build>
 
 </project>
+
+
