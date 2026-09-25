@@ -34,23 +34,51 @@ jobs:
           name: jacoco-coverage-report
           path: target/site/jacoco
 
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend-Dependencies installieren
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend bauen
+        working-directory: frontend
+        run: npm run build
+
       - name: Docker-Image bauen
         run: docker build -t notes-app:latest .
 
       - name: App über Docker Compose starten
         run: docker compose up -d --build
 
-      - name: Warten bis App bereit ist
+      - name: Warten bis Backend bereit ist
         run: |
           for i in {1..10}; do
             if curl --fail http://localhost:8080/notes; then
-              echo "App läuft!"
+              echo "Backend läuft!"
               exit 0
             fi
-            echo "Warte auf App..."
+            echo "Warte auf Backend..."
             sleep 3
           done
-          echo "App ist nicht rechtzeitig gestartet"
+          echo "Backend ist nicht rechtzeitig gestartet"
+          exit 1
+
+      - name: Warten bis Frontend bereit ist
+        run: |
+          for i in {1..10}; do
+            if curl --fail http://localhost:3000/; then
+              echo "Frontend läuft!"
+              exit 0
+            fi
+            echo "Warte auf Frontend..."
+            sleep 3
+          done
+          echo "Frontend ist nicht rechtzeitig gestartet"
           exit 1
 
       - name: Container-Logs anzeigen (bei Fehler hilfreich)
