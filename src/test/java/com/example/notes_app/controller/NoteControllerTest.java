@@ -68,6 +68,32 @@ class NoteControllerTest {
     }
 
     @Test
+    void createNote_lehntLeerenTitelAb() throws Exception {
+        Note note = new Note();
+        note.setTitle("");
+        note.setContent("Inhalt ohne Titel");
+
+        mockMvc.perform(post("/notes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(note)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Titel darf nicht leer sein"));
+    }
+
+    @Test
+    void createNote_lehntZuLangenTitelAb() throws Exception {
+        Note note = new Note();
+        note.setTitle("x".repeat(201));
+        note.setContent("Inhalt");
+
+        mockMvc.perform(post("/notes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(note)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Titel darf maximal 200 Zeichen sein"));
+    }
+
+    @Test
     void deleteNote_loeschtNotiz() throws Exception {
         Note note = new Note();
         note.setTitle("Zu löschen");

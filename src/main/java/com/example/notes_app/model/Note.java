@@ -1,9 +1,17 @@
 package com.example.notes_app.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class Note {
 
     private Long id;
+
+    @NotBlank(message = "Titel darf nicht leer sein")
+    @Size(max = 200, message = "Titel darf maximal 200 Zeichen sein")
     private String title;
+
+    @Size(max = 5000, message = "Inhalt darf maximal 5000 Zeichen sein")
     private String content;
 
     public Note() {
