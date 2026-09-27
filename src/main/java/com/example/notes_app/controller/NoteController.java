@@ -3,11 +3,15 @@
 import com.example.notes_app.model.Note;
 import com.example.notes_app.service.NoteNotFoundException;
 import com.example.notes_app.service.NoteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 @RestController
 @RequestMapping("/notes")
 public class NoteController {
@@ -30,12 +34,12 @@ public class NoteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Note createNote(@RequestBody Note note) {
+    public Note createNote(@Valid @RequestBody Note note) {
         return noteService.createNote(note);
     }
 
     @PutMapping("/{id}")
-    public Note updateNote(@PathVariable Long id, @RequestBody Note note) {
+    public Note updateNote(@PathVariable Long id, @Valid @RequestBody Note note) {
         return noteService.updateNote(id, note);
     }
 
@@ -48,5 +52,13 @@ public class NoteController {
     @ExceptionHandler(NoteNotFoundException.class)
     public ResponseEntity<String> handleNoteNotFound(NoteNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }
